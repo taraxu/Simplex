@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Simplex {
 	double [] coefEco;
@@ -7,6 +10,7 @@ public class Simplex {
 	double [] qy;
 	double [] zj;
 	double [] cjZj;
+	double ve;
 	double [] xj;
 	
 	Simplex () {
@@ -22,6 +26,9 @@ public class Simplex {
 		this.xj = new double[3];
 		this.zj = new double[6];
 		
+		this.ve = ve;
+	
+		
 	};
 	
 	 public void calDiffNbvNbcont() {
@@ -32,45 +39,24 @@ public class Simplex {
 	 };
 	 
 	 
-	 public void calZj() {
-		//System.out.println(this.coefCont.length);		
+	 public void calZj() { 
+		 for (int col = 0; col < this.coefCont[col].length; col++) {
 			 
-//			 for (int indexXj = 0; indexXj < this.xj.length; indexXj++) {
-//				 for (int row = 0; row < this.coefCont[0].length; row++) {
-//					 for (int col = 0; col < this.coefCont.length; col++) {
-//						 double cofRow = this.coefCont[col][row];					
-//							 this.xj[indexXj] = cofRow;
-//							 for (int indexCp = 0; indexCp < this.cp.length; indexCp++) {
-//								 for (int indexZj = 0; indexZj < this.zj.length; indexZj++) {
-//									 this.zj[indexZj] = this.xj[indexXj] * this.cp[indexCp];
-//									 System.out.print(this.zj[indexZj]);
-//								 }
-//							 }
-//							
-//					 }
-//					 
-//				 }
-//				 
-//			 }	
-		 
-		 for (int row = 0; row < this.coefCont[0].length; row++) {
-			 for (int col = 0; col < this.coefCont.length; col++) {
-				 this.coefCont2[col][row] = this.coefCont[row][col];
-			 }
-			 for (int indexCp = 0; indexCp < this.cp.length; indexCp++) {
-				 for (int indexZj = 0; indexZj < this.zj.length; indexZj++) {
-//					 this.zj[indexZj] = this.coefCont2 * this.cp[indexCp];
-//					 System.out.print(this.zj[indexZj]);
-				 }
-			 }
-		 }
-		 
+				 this.xj[col] = this.coefCont[col].length * this.cp[col];
+				 this.zj[col] = this.xj[col+1];
+			
+		 }		 
 
 	 };
 
 
-public void calCjZj() {
+	public void calCjZj() {
+		
+	};
 	
-};
+//	public void calVe() {
+//		List b = Arrays.asList(Arrays.toObject(this.coefCont));
+//		this.ve = (double) Collections.max(b);
+//	}
 
 }
