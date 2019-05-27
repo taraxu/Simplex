@@ -4,8 +4,7 @@ public class SimplexRun {
 	public static void main(String[] args) {
 
 		
-		Simplex sp1 = new Simplex(6, 3);
-		sp1.ititCp();
+		Simplex sp1 = new Simplex();
 		sp1.initZj();
 		sp1.initCjZj();
 		sp1.getVe();
