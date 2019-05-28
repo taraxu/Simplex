@@ -39,39 +39,42 @@ public class Simplex {
 		 }
 	 };
 	 
-	 public double[] getCp() {
+	 public double[] calCp() {
 		double[] cp = new double[this.coefCont.length];
-		int deltaLength = this.coefEco.length - cp.length;
+		int deltaLength = this.coefEco.length - cp.length;  //number of variable in Eco table
+		
+		// loop the talbe of vdb = deltalength
 		for (int indexCP = 0; indexCP<cp.length; indexCP++) {
-			 cp[indexCP] = this.coefEco[indexCP+deltaLength];
-		}		
-		 return cp;
+			 cp[indexCP] = this.coefEco[indexCP + deltaLength];   // cp value correspond the rest value of Eco table after the number of variable
+		}
+		this.iteration();
+		return cp;
 	 }
 	 
 	 
-	 public double[] initZj() { 
+	 public double[] calZj() { 
 		 double[] zj = new double[this.coefCont[0].length];
 		 for (int row = 0; row < this.coefCont.length; row++) {
 			 for (int col = 0; col < this.coefCont[row].length; col++) {
-				 zj[row] += this.getCp()[row] * this.coefCont[row][col];
+				 zj[row] += this.calCp()[row] * this.coefCont[row][col];
 			 }			 
 		 }
 		 return zj;
 	 };
 
 
-	public double[] initCjZj() {
+	public double[] calCjZj() {
 		double[] cjZj = new double[this.coefCont[0].length];
 		 for (int i = 0; i < coefEco.length; i++) {
-			 cjZj[i] = this.coefEco[i] - this.initZj()[i];
+			 cjZj[i] = this.coefEco[i] - this.calZj()[i];
 		 }
 		 return cjZj;
 	};
 	
 	
 	//get the value and the position of ve
-	public double getVe() {
-		double ve = 0;
+	public double calVe() {
+		double ve = coefEco[0];
 		for(int coefEcoIndex = 0; coefEcoIndex < this.coefEco.length; coefEcoIndex++) {
 			if(coefEco[coefEcoIndex] > ve) {
 				ve = coefEco[coefEcoIndex];
@@ -80,12 +83,12 @@ public class Simplex {
 		return ve;
 	}
 	
-	public int getVePosition() {	
+	public int calVePosition() {	
 		
 		// get the position of ve
 		int vePosition = 0;
 		for (int i=0; i < this.coefEco.length; i++) {
-			if(this.getVe() ==  this.coefEco[i]) {
+			if(this.calVe() ==  this.coefEco[i]) {
 				vePosition = i;
 			}
 		}
@@ -94,34 +97,35 @@ public class Simplex {
 	
 	
 	// get the value and position of vs
-	public double[] getRatio() {
+	public double[] calRatio() {
 		
 		// get the ratio
-		double [] ratio = new double[this.getCp().length];		
+		double [] ratio = new double[this.calCp().length];		
 		for (int qyIndex = 0; qyIndex < this.qy.length; qyIndex++) {		
-			ratio[qyIndex] = this.qy[qyIndex] / this.coefCont[qyIndex][this.getVePosition()]; //get ratio table
+			ratio[qyIndex] = this.qy[qyIndex] / this.coefCont[qyIndex][this.calVePosition()]; //get ratio table
 		}
 		return ratio;
 	}
 	
-	public double getVs() {
-		double vs = this.getRatio()[0];
+	public double calVs() {
+		double[] ratios = this.calRatio();
+		double vs = ratios[0];
 		
 		//get the min of ratio = vs
-		for(int ratioIndex = 0; ratioIndex < this.getRatio().length; ratioIndex++) {
-			if(vs > this.getRatio()[ratioIndex] ) {
-				vs = this.getRatio()[ratioIndex];
+		for(int ratioIndex = 0; ratioIndex < ratios.length; ratioIndex++) {
+			if(vs > ratios[ratioIndex] ) {
+				vs = ratios[ratioIndex];
 			}
 		}
 		return vs;
 	}
 		
 	
-	public int getVsPosition() {
+	public int calVsPosition() {
 		//get position of vs
 		int vsPosition = 0;
 		for (int i = 0; i < this.qy.length; i++) {
-			if(this.getVs() == this.getRatio()[i]) {
+			if(this.calVs() == this.calRatio()[i]) {
 				vsPosition = i;
 			}
 		};
@@ -129,56 +133,77 @@ public class Simplex {
 	}
 	
 
-	public double getPivot() {
+	public double calPivot() {
 		
 		// the pivot is the intersection of column ve and row vs
 		double pivot;
-		pivot = this.coefCont[this.getVsPosition()][this.getVsPosition()];
+		pivot = this.coefCont[this.calVsPosition()][this.calVePosition()];
 		return pivot;
 	}
 	
 	
-	public double[] getPivotRow() {
-		this.qy[this.getVsPosition()] = this.qy[this.getVsPosition()] / this.getPivot();
-		double[] pivotRow = new double[this.coefEco.length];
-		for (int i = 0; i < this.coefEco.length; i++) {
-			pivotRow[i] = this.coefCont[this.getVsPosition()][i] / this.getPivot();
-		}
-		//System.out.println(pivotRow[5]);
-		return pivotRow;
+	public double[] calPivotRow() {
+		double pivot = this.calPivot();
+		int vsPosition = this.calVsPosition();
 		
+		double[] pivotRow = new double[this.coefCont[0].length];
+		for (int i = 0; i < this.coefCont[0].length; i++) {
+			pivotRow[i] = this.coefCont[vsPosition][i] / pivot;
+		}
+		return pivotRow;		
+	}
+	
+	
+	public double[] calPivotQy() {
+		int vsPosition = this.calVsPosition();
+		this.qy[vsPosition] = this.qy[vsPosition] / this.calPivot();
+		return this.qy;
 	}
 	
 	
 	public void iteration() {
 		
-		if(!this.stopIteration()) {
+		while (!this.stopIteration()) {
+			double[] pivotRow = this.calPivotRow();
+			int vePosition = this.calVePosition();
+			int vsPosition = this.calVsPosition();
+			double[] qy = this.calPivotQy();
 			
-			double pTest = this.getPivotRow()[this.getVePosition()]; // get reference point of constraint of ve of Table-1
+			double pTest = pivotRow[vePosition]; // get reference point of constraint of ve of Table-1 to calculate the iterated table
 			double coefIteration;
+			
+			// loop to create the new table of constraint with new quantity
 			for (int row=0; row < this.coefCont.length; row++) {
 				
 				//let all the coef of constraint of ve of Table-1 = 0
-				coefIteration = this.coefCont[row][this.getVePosition()] /pTest;
+				// this.coefcont[row][vePosition] - coefInteration * pTest = 0
+				coefIteration = this.coefCont[row][vePosition] /pTest;
 				
-				//creat the limit of looping of constraint lines for insert the new values
-				if (!(this.coefCont[row] == this.coefCont[this.getVsPosition()])) {
-					
+				//insert the new constraint rows except the pivot row
+				if (!(this.coefCont[row] == this.coefCont[vsPosition])) {					
 					for (int col = 0; col< this.coefCont[0].length; col++) {
-						
-						// affect the new value for all the constraint coef except the vsPosition line
-						this.coefCont[row][col] = this.coefCont[row][col] - (coefIteration * this.getPivotRow()[col]); 					
-					}	
-				}						
-			}
+						this.coefCont[row][col] = this.coefCont[row][col] - (coefIteration * pivotRow[col]);	
+					}					
+					qy[row] = qy[row] - (coefIteration * qy[vsPosition]);  // insert the new quanty except the pivot row
+					
+					
+				// insert the new constraint row of the pivot row
+				} else if (this.coefCont[row] == this.coefCont[vsPosition]){
+						this.coefCont[row] = pivotRow  ; // replace the old vs coef by ve in table-1					
+						qy[row] = qy[vsPosition];  //insert the new quantity of th pivot row
+				}
+			}			
 			
-			for (int col = 0; col< this.coefCont[0].length; col++) {
-				this.coefCont[this.getVePosition()][col] = this.getPivotRow()[col]  ; // replace the old vs coef by ve in table-1
-				//System.out.println(this.coefCont[this.getVePosition()][col]);
-			}
+			// get the new cp		
+			double[] cp = this.calCp();			
+			cp[vsPosition] = this.coefEco[vePosition]; // replace old vs coef by ve in table-1 
+			//this.calCp(); //call calculate cp method to update the values
+			
+			// ???????????????????????should recalculate the value of zj, cjZj based on the first iteration??????????????????????????????
+			this.calZj();  // recalculate the zj;
+			double[] cjZj = this.calCjZj();  // recalculate the cjzj;
 			
 			
-			this.getCp()[this.getVsPosition()] = this.coefEco[this.getVePosition()]; // replace old vs row by ve in table-1
 		}
 	}
 		

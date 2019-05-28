@@ -5,12 +5,12 @@ public class SimplexRun {
 
 		
 		Simplex sp1 = new Simplex();
-		sp1.initZj();
-		sp1.initCjZj();
-		sp1.getVe();
-		sp1.getVs();
-		sp1.getPivot();
-		sp1.getPivotRow();
+		sp1.calVe();
+		sp1.calVs();
+		sp1.calZj();
+		sp1.calCjZj();
+		sp1.calPivot();
+		sp1.calPivotRow();
 		sp1.iteration();
 	}
 
