@@ -7,6 +7,7 @@ public class Simplex {
 	double [] coefEco;
 	double [][] coefCont;
 	double [] qy;
+	double[] cp;
 	double z;
 	
 	Simplex () {
@@ -17,6 +18,7 @@ public class Simplex {
 				{2, 6, 4, 0, 0, 1}
 		};
 		this.qy = new double[] {100, 120, 200};
+		this.cp = calCp(); 
 		this.z = 0;
 		
 	};
@@ -40,24 +42,30 @@ public class Simplex {
 	 };
 	 
 	 public double[] calCp() {
-		double[] cp = new double[this.coefCont.length];
+		this.cp = new double[this.coefCont.length];
 		int deltaLength = this.coefEco.length - cp.length;  //number of variable in Eco table
 		
-		// loop the talbe of vdb = deltalength
-		for (int indexCP = 0; indexCP<cp.length; indexCP++) {
-			 cp[indexCP] = this.coefEco[indexCP + deltaLength];   // cp value correspond the rest value of Eco table after the number of variable
+		// loop the table of vdb = deltalength
+		for (int indexCP = 0; indexCP < this.cp.length; indexCP++) {
+			 this.cp[indexCP] = this.coefEco[indexCP + deltaLength];   // cp value correspond the rest value of Eco table after the number of variable
 		}
-		this.iteration();
-		return cp;
+		return this.cp;
 	 }
 	 
 	 
 	 public double[] calZj() { 
+		 double[] eachRowRes = new double[this.coefCont.length];
 		 double[] zj = new double[this.coefCont[0].length];
-		 for (int row = 0; row < this.coefCont.length; row++) {
-			 for (int col = 0; col < this.coefCont[row].length; col++) {
-				 zj[row] += this.calCp()[row] * this.coefCont[row][col];
-			 }			 
+		 double sum;
+		 
+		 for (int col = 0; col < this.coefCont[0].length; col++) {
+			 sum = 0;
+			 for (int row = 0; row < this.coefCont.length; row++) {
+				 eachRowRes[row] = this.cp[row] * this.coefCont[row][col];
+				 sum += eachRowRes[row];
+			 }
+			 zj[col] = sum;
+			 
 		 }
 		 return zj;
 	 };
@@ -100,7 +108,7 @@ public class Simplex {
 	public double[] calRatio() {
 		
 		// get the ratio
-		double [] ratio = new double[this.calCp().length];		
+		double [] ratio = new double[this.cp.length];		
 		for (int qyIndex = 0; qyIndex < this.qy.length; qyIndex++) {		
 			ratio[qyIndex] = this.qy[qyIndex] / this.coefCont[qyIndex][this.calVePosition()]; //get ratio table
 		}
@@ -195,13 +203,13 @@ public class Simplex {
 			}			
 			
 			// get the new cp		
-			double[] cp = this.calCp();			
-			cp[vsPosition] = this.coefEco[vePosition]; // replace old vs coef by ve in table-1 
+						
+			this.cp[vsPosition] = this.coefEco[vePosition]; // replace old vs coef by ve in table-1 
 			//this.calCp(); //call calculate cp method to update the values
 			
 			// ???????????????????????should recalculate the value of zj, cjZj based on the first iteration??????????????????????????????
 			this.calZj();  // recalculate the zj;
-			double[] cjZj = this.calCjZj();  // recalculate the cjzj;
+			this.calCjZj();  // recalculate the cjzj;
 			
 			
 		}
