@@ -9,15 +9,15 @@ public class Simplex {
 	
 	Simplex () {
 		
-//		this.coefEco = new double[] {5, 4, 6, 0, 0, 0, 0};
-//		this.coefCont = new double[][] {
-//				{1, 1, 1, 0, 0, 0, 0},
-//				{1, 0, 0, -1, 0, 0, 0},
-//				{0, 1, 0, 0, 1, 0, 0},
-//				{0, 0, 1, 0, 0, -1, 0},
-//				{0, 0, 1, 0, 0, 0, 1}
-//		};
-//		this.qy = new double[] {225, 45, 55, 70, 100};
+		this.coefEco = new double[] {5, 4, 6, 0, 0, 0, 0};
+		this.coefCont = new double[][] {
+				{1, 1, 1, 0, 0, 0, 0},
+				{1, 0, 0, -1, 0, 0, 0},
+				{0, 1, 0, 0, 1, 0, 0},
+				{0, 0, 1, 0, 0, -1, 0},
+				{0, 0, 1, 0, 0, 0, 1}
+		};
+		this.qy = new double[] {225, 45, 55, 70, 100};
 		
 //		this.coefEco = new double[] {5, 6, 0, 0};
 //		this.coefCont = new double[][] {
@@ -27,13 +27,13 @@ public class Simplex {
 //		this.qy = new double[] {12, 8};
 		
 		
-		this.coefEco = new double[] {3, 2, 0, 0, 0};
-		this.coefCont = new double[][] {
-				{2, 1, 1, 0, 0},
-				{2, 3, 0, 1, 0},
-				{3, 1, 0, 0, 1}
-		};
-		this.qy = new double[] {18, 42, 24};
+//		this.coefEco = new double[] {3, 2, 0, 0, 0};
+//		this.coefCont = new double[][] {
+//				{2, 1, 1, 0, 0},
+//				{2, 3, 0, 1, 0},
+//				{3, 1, 0, 0, 1}
+//		};
+//		this.qy = new double[] {18, 42, 24};
 		
 		
 //		this.coefEco = new double[] {100, 120};
@@ -42,9 +42,7 @@ public class Simplex {
 //				{1, 3},
 //				{2, 2}
 //		};
-//		this.qy = new double[] {4200, 2400, 2600};
-		
-		
+//		this.qy = new double[] {4200, 2400, 2600};		
 		
 		
 //		this.coefEco = new double[] {6, 7, 8, 0, 0, 0};
@@ -55,8 +53,87 @@ public class Simplex {
 //		};
 //		this.qy = new double[] {100, 120, 200};
 		
-		this.z = 0;			
+		this.z = 0;	
+	}
+	
+	
+	
+	/**
+	 * interface to select the optimizer way, maximum by default
+	 * @return maximum or minimum the solution
+	 */
+	 
+	public String operation() {
+		
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Saisir 'max' pour maximier le résultat ou 'min' pour minimiser le résultat ");
+		String choice = sc.nextLine();
+		if(choice.equals("max")) {			
+			return "max";
+		} else {
+			return "min";
+		}
 	}	
+	
+	
+	public String[] typeCont() {
+		
+		String[] typeCont = {};
+		Scanner input = new Scanner(System.in);
+
+		System.out.println("Saisir '>=' ou '<=' pour le type de contraint ");
+		for (int i = 0; i < this.coefCont.length; i++) {
+			typeCont[i] = input.nextLine();
+			System.out.println("Saisir '>=' ou '<=' pour le type de contraint ");
+			
+		}		
+		return typeCont;
+	}
+	
+	
+	
+	/**
+	 * Add slack and surplus variables
+	 * @return
+	 */
+	public double[] addV() {
+		String typeCont[] = this.typeCont();
+		int contCol = this.coefCont[0].length;
+		double[] vSlackOrSurplus = {};
+		
+		for (int i=0; i<= contCol; i++) {
+			if(typeCont.equals("<=")) {
+				vSlackOrSurplus[i] = this.coefCont[contCol][i+1] = 1;
+			} else if(typeCont.equals(">=")) {
+				vSlackOrSurplus[i]= this.coefCont[contCol][i+1] = -1;
+			}
+		}
+		return vSlackOrSurplus;
+	}
+	
+	
+	
+	 /**
+	  * Calculate the quantity
+	  * @return
+	  */
+	public double[] calQy() {
+		
+		int diffNbvNbcont = this.coefEco.length - this.coefCont.length; //nb of non-basic variables
+		double[] vSlackOrSurplus = this.addV();
+		 int coefEcoActLength = 1;
+		 if(diffNbvNbcont > 0) {
+			 // Set nb of variables - nb of constrains equal to zero (NBV = 0) and set all non-basic variables to 0
+				for (int i=0; i < this.coefCont.length; i++) {
+					this.qy[i] = this.qy[i] * vSlackOrSurplus[i];
+				}
+		 } else {
+			 throw new Exception();
+		 }
+		return this.qy;
+	}
+	 
+	 
 	
 	 
 	 public double[] calZj() { 
@@ -95,7 +172,7 @@ public class Simplex {
 				 eachRowRes[i] = this.cp[i] * this.qy[i];
 				 this.z += eachRowRes[i];
 			 }
-				System.out.println("Le resultat optimisé est " + this.z); 
+				System.out.println("Le résultat est " + this.z); 
 			 
 		}
 		
@@ -113,23 +190,6 @@ public class Simplex {
 		return this.cp;
 	 }
 	 
-	
-	/**
-	 * interface to select the optimizer way, maximum by default
-	 * @return maximum or minimum the solution
-	 */
-	 
-	public String operation() {
-		
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Saisir 'max' pour maximier le résultat ou 'min' pour minimiser le résultat ");
-		String choice = sc.nextLine();
-		if(choice.equals("max")) {			
-			return "max";
-		} else {
-			return "min";
-		}
-	}
 	 
 	 
 	
@@ -137,7 +197,8 @@ public class Simplex {
 	 * initialize the table
 	 * 
 	 */
-	public void initTable (double[] coefEco, double[][] coefCont, double[] qy) {
+	public void initTable () {
+		this.calQy();
 		this.calCp();
 		this.calZj();
 		this.calCjZj();
@@ -322,28 +383,6 @@ public class Simplex {
 		this.calVsPosition();
 	}
 	
-	
-	
-	
-	
-	
-	
-/***********************************************	to be finished *******************************************************
-	
-	
-
-	
-	
-	
-	 public void getDiffNbvNbcont() {
-		 int diffNbvNbcont = this.coefEco.length - this.coefEco.length;
-		 if(diffNbvNbcont >0) {
-			// ?????????????????????????? 
-		 }
-	 }
-	 
-	 
-	************************************************** to be finished *****************************************/ 
 	
 	
 		
