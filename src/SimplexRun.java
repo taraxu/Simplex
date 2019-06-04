@@ -6,7 +6,7 @@ public class SimplexRun {
 		Simplex sp = new Simplex();
 		
 //		sp.operation();
-		sp.typeCont();
+		//sp.typeCont();
 		sp.initTable();
 		sp.stopIteration();
 

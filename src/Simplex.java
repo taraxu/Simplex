@@ -9,22 +9,22 @@ public class Simplex {
 	
 	Simplex () {
 		
-		this.coefEco = new double[] {5, 4, 6, 0, 0, 0, 0};
-		this.coefCont = new double[][] {
-				{1, 1, 1, 0, 0, 0, 0},
-				{1, 0, 0, -1, 0, 0, 0},
-				{0, 1, 0, 0, 1, 0, 0},
-				{0, 0, 1, 0, 0, -1, 0},
-				{0, 0, 1, 0, 0, 0, 1}
-		};
-		this.qy = new double[] {225, 45, 55, 70, 100};
-		
-//		this.coefEco = new double[] {5, 6, 0, 0};
+//		this.coefEco = new double[] {5, 4, 6, 0, 0, 0, 0};
 //		this.coefCont = new double[][] {
-//				{1, 2, -1, 0, 1},
-//				{1, 1, 0, -1, 0}
+//				{1, 1, 1, 0, 0, 0, 0},
+//				{1, 0, 0, -1, 0, 0, 0},
+//				{0, 1, 0, 0, 1, 0, 0},
+//				{0, 0, 1, 0, 0, -1, 0},
+//				{0, 0, 1, 0, 0, 0, 1}
 //		};
-//		this.qy = new double[] {12, 8};
+//		this.qy = new double[] {225, 45, 55, 70, 100};
+		
+		this.coefEco = new double[] {5, 6, 0, 0, 10, 10 };
+		this.coefCont = new double[][] {
+				{1, 2, -1, 0, 1, 0 },
+				{1, 1, 0, -1, 0, 1 }
+		};
+		this.qy = new double[] {12, 8};
 		
 		
 //		this.coefEco = new double[] {3, 2, 0, 0, 0};
@@ -83,9 +83,8 @@ public class Simplex {
 
 		System.out.println("Saisir '>=' ou '<=' pour le type de contraint ");
 		for (int i = 0; i < this.coefCont.length; i++) {
-			typeCont[i] = input.nextLine();
-			System.out.println("Saisir '>=' ou '<=' pour le type de contraint ");
-			
+			typeCont[i] = input.nextLine();  // ??????????????????????????????????????????????????????????????
+			System.out.println("Saisir '>=' ou '<=' pour le type de contraint ");			
 		}		
 		return typeCont;
 	}
@@ -96,42 +95,42 @@ public class Simplex {
 	 * Add slack and surplus variables
 	 * @return
 	 */
-	public double[] addV() {
-		String typeCont[] = this.typeCont();
-		int contCol = this.coefCont[0].length;
-		double[] vSlackOrSurplus = {};
-		
-		for (int i=0; i<= contCol; i++) {
-			if(typeCont.equals("<=")) {
-				vSlackOrSurplus[i] = this.coefCont[contCol][i+1] = 1;
-			} else if(typeCont.equals(">=")) {
-				vSlackOrSurplus[i]= this.coefCont[contCol][i+1] = -1;
-			}
-		}
-		return vSlackOrSurplus;
-	}
+//	public double[] addV() {0
+//		String typeCont[] = this.typeCont();
+//		int contCol = this.coefCont[0].length;
+//		double[] vSlackOrSurplus = {};
+//		
+//		for (int i=0; i<= contCol; i++) {
+//			if(typeCont[i].equals("<=")) {
+//				vSlackOrSurplus[i] = this.coefCont[contCol][i+1] = 1;
+//			} else if(typeCont.equals(">=")) {
+//				vSlackOrSurplus[i]= this.coefCont[contCol][i+1] = -1;
+//			}
+//		}
+//		return vSlackOrSurplus;
+//	}
 	
 	
 	
-	 /**
-	  * Calculate the quantity
-	  * @return
-	  */
-	public double[] calQy() {
-		
-		int diffNbvNbcont = this.coefEco.length - this.coefCont.length; //nb of non-basic variables
-		double[] vSlackOrSurplus = this.addV();
-		 int coefEcoActLength = 1;
-		 if(diffNbvNbcont > 0) {
-			 // Set nb of variables - nb of constrains equal to zero (NBV = 0) and set all non-basic variables to 0
-				for (int i=0; i < this.coefCont.length; i++) {
-					this.qy[i] = this.qy[i] * vSlackOrSurplus[i];
-				}
-		 } else {
-			 throw new Exception();
-		 }
-		return this.qy;
-	}
+//	 /**
+//	  * Calculate the quantity
+//	  * @return
+//	  */
+//	public double[] calQy() {
+//		
+//		int diffNbvNbcont = this.coefEco.length - this.coefCont.length; //nb of non-basic variables
+//		//double[] vSlackOrSurplus = this.addV();
+//		 int coefEcoActLength = 1;
+//		 if(diffNbvNbcont > 0) {
+//			 // Set nb of variables - nb of constrains equal to zero (NBV = 0) and set all non-basic variables to 0
+//				for (int i=0; i < this.coefCont.length; i++) {
+//					this.qy[i] = this.qy[i] * vSlackOrSurplus[i];
+//				}
+//		 } else {
+//			 throw new Exception();
+//		 }
+//		return this.qy;
+//	}
 	 
 	 
 	
@@ -198,7 +197,7 @@ public class Simplex {
 	 * 
 	 */
 	public void initTable () {
-		this.calQy();
+		//this.calQy();
 		this.calCp();
 		this.calZj();
 		this.calCjZj();
